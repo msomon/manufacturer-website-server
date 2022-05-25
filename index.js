@@ -41,9 +41,14 @@ async function run() {
  const usersCollection = client.db('electronicsManufacturer').collection('users')
 
 app.get('/tools',async(req,res)=>{
-
   const result = await toolsCollection.find({}).toArray()
 res.send(result)
+
+})
+app.post('/addproduct',async(req,res)=>{
+  const product = req.body
+  const result = await toolsCollection.insertOne(product)
+  res.send(result)
 
 })
 
@@ -88,26 +93,34 @@ app.put('/users/:email', async (req, res) => {
   res.send({ result, token });
 })
 
+app.put('/users/admin/:email', async (req ,res) => {
+  const email = req.params.email;
+  // console.log(email);
+  const filter = { email: email };
+  const updateDoc = {
+    $set: { role: 'admin' },
+  };
+
+  const admin = await usersCollection.updateOne(filter, updateDoc);
+  res.send(admin)
+})
+
 app.get('/users',async(req,res)=>{
     const users = await usersCollection.find({}).toArray()
   res.send(users)
   
   })
+
+  app.post('/addproduct',async(req,res)=>{
+    const order = req.body
+    const result = await toolsCollection.insertOne(order)
+    console.log(result);
+    res.send(result)
+  })
   
 }
 
-app.put('/users/admin/:email', async (req, res) => {
-  const email = req.params.email;
-  // console.log(email);
-  const filter = { email: email };
-  const options = { upsert: true };
-  const updateDoc = {
-    $set: { role: 'admin' },
-  };
 
-  const admin =await usersCollection.updateOne(filter, updateDoc,options);
-  res.send(admin)
-})
 
 
 run().catch(console.dir)
