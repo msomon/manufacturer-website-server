@@ -40,6 +40,7 @@ async function run() {
  const bookingsCollection = client.db('electronicsManufacturer').collection('bookings')
  const usersCollection = client.db('electronicsManufacturer').collection('users')
  const reviewsCollection = client.db('electronicsManufacturer').collection('reviews')
+ const profilesCollection = client.db('electronicsManufacturer').collection('profiles')
 
 app.get('/tools',async(req,res)=>{
   const result = await toolsCollection.find({}).toArray()
@@ -99,6 +100,7 @@ app.put('/users/:email', async (req, res) => {
   const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
   res.send({ result, token });
 })
+
 app.get('/admin/:email', async(req, res) =>{
   const email = req.params.email;
   const user = await usersCollection.findOne({email: email});
@@ -174,8 +176,26 @@ app.get('/users',async(req,res)=>{
     res.send(result)
     
     })
-  
 
+
+    app.put('/user/updatemyprofile/:email', async (req, res) => {
+      const email = req.params.email;
+      const profile = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: profile,
+      };
+      const result = await profilesCollection.updateOne(filter, updateDoc, options);
+      
+      res.send(result);
+    })
+  
+    app.get('/user/myprofile/:email', async(req, res) =>{
+      const email = req.params.email;
+      const user = await profilesCollection.findOne({email: email})
+      res.send(user)
+    })
 
 
 }
