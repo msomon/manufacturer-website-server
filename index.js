@@ -68,6 +68,7 @@ const result = await bookingsCollection.find({}).toArray()
 res.send(result)
 
 })
+
 app.post('/myorders',async(req,res)=>{
   const booking = req.body
   // console.log(booking);
@@ -105,6 +106,8 @@ app.get('/admin/:email', async(req, res) =>{
   res.send({admin: isAdmin})
 })
 
+
+
 app.put('/users/admin/:email', async (req ,res) => {
   const email = req.params.email;
   // console.log(email);
@@ -136,10 +139,38 @@ app.get('/users',async(req,res)=>{
     
     })
 
+
     app.post('/addreview',async(req,res)=>{
       const review = req.body
-      // console.log(review);
-    const result = await reviewsCollection.insertOne(review)
+        const result = await reviewsCollection.insertOne(review)
+        res.send(result)
+       
+    })
+
+    app.delete('/cancelorder/:id',async(req,res)=>{
+      const id = req.params.id ;
+      const query = {_id:ObjectId(id)};
+      // console.log(query);
+    const result = await bookingsCollection.deleteOne(query)
+    // console.log(result);
+    res.send(result)
+    
+    })
+    app.delete('/cancelallorder/:id',async(req,res)=>{
+      const id = req.params.id ;
+      const query = {_id:ObjectId(id)};
+      // console.log(query);
+    const result = await bookingsCollection.deleteOne(query)
+    // console.log(result);
+    res.send(result)
+    
+    })
+    app.delete('/deleteallproduct/:id',async(req,res)=>{
+      const id = req.params.id ;
+      const query = {_id:ObjectId(id)};
+      // console.log(query);
+    const result = await toolsCollection.deleteOne(query)
+    // console.log(result);
     res.send(result)
     
     })
