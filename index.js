@@ -42,7 +42,7 @@ async function run() {
  const reviewsCollection = client.db('electronicsManufacturer').collection('reviews')
  const profilesCollection = client.db('electronicsManufacturer').collection('profiles')
 
-app.get('/tools', verifyJWT,async(req,res)=>{
+app.get('/tools', async(req,res)=>{
   const result = await toolsCollection.find({}).toArray()
 res.send(result)
 
@@ -135,7 +135,7 @@ app.get('/users', verifyJWT,async(req,res)=>{
     res.send(result)
   })
 
-  app.get('/reviews', verifyJWT,async(req,res)=>{
+  app.get('/reviews', async(req,res)=>{
     const result = await reviewsCollection.find({}).toArray()
     res.send(result)
     
