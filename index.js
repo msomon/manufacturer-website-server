@@ -42,19 +42,19 @@ async function run() {
  const reviewsCollection = client.db('electronicsManufacturer').collection('reviews')
  const profilesCollection = client.db('electronicsManufacturer').collection('profiles')
 
-app.get('/tools',async(req,res)=>{
+app.get('/tools', verifyJWT,async(req,res)=>{
   const result = await toolsCollection.find({}).toArray()
 res.send(result)
 
 })
-app.post('/addproduct',async(req,res)=>{
+app.post('/addproduct', verifyJWT,async(req,res)=>{
   const product = req.body
   const result = await toolsCollection.insertOne(product)
   res.send(result)
 
 })
 
-app.get('/tools/:id',async(req,res)=>{
+app.get('/tools/:id', verifyJWT,async(req,res)=>{
   const id = req.params.id
   const filter = {_id:ObjectId(id)}
 
@@ -64,7 +64,7 @@ res.send(result)
 
 })
 
-app.get('/allorders',async(req,res)=>{
+app.get('/allorders', verifyJWT,async(req,res)=>{
 const result = await bookingsCollection.find({}).toArray()
 res.send(result)
 
@@ -78,7 +78,7 @@ res.send(result)
 
 })
 
-app.get('/myorders',async(req,res)=>{
+app.get('/myorders', verifyJWT,async(req,res)=>{
 
 const email = req.query.email
 const filter = {email:email}
@@ -101,7 +101,7 @@ app.put('/users/:email', async (req, res) => {
   res.send({ result, token });
 })
 
-app.get('/admin/:email', async(req, res) =>{
+app.get('/admin/:email', verifyJWT,async(req, res) =>{
   const email = req.params.email;
   const user = await usersCollection.findOne({email: email});
   const isAdmin = user.role === 'admin';
@@ -122,7 +122,7 @@ app.put('/users/admin/:email', async (req ,res) => {
   res.send(admin)
 })
 
-app.get('/users',async(req,res)=>{
+app.get('/users', verifyJWT,async(req,res)=>{
     const users = await usersCollection.find({}).toArray()
   res.send(users)
   
@@ -135,7 +135,7 @@ app.get('/users',async(req,res)=>{
     res.send(result)
   })
 
-  app.get('/reviews',async(req,res)=>{
+  app.get('/reviews', verifyJWT,async(req,res)=>{
     const result = await reviewsCollection.find({}).toArray()
     res.send(result)
     
@@ -191,7 +191,7 @@ app.get('/users',async(req,res)=>{
       res.send(result);
     })
   
-    app.get('/user/myprofile/:email', async(req, res) =>{
+    app.get('/user/myprofile/:email', verifyJWT, async(req, res) =>{
       const email = req.params.email;
       const user = await profilesCollection.findOne({email: email})
       res.send(user)
