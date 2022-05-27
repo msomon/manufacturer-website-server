@@ -42,7 +42,7 @@ async function run() {
  const reviewsCollection = client.db('electronicsManufacturer').collection('reviews')
  const profilesCollection = client.db('electronicsManufacturer').collection('profiles')
 
-app.get('/tools', async(req,res)=>{
+app.get('/tools',verifyJWT, async(req,res)=>{
   const result = await toolsCollection.find({}).toArray()
 res.send(result)
 
