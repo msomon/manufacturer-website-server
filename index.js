@@ -1,11 +1,13 @@
+require('dotenv').config();
 const express = require("express");
 const cors = require('cors')
 const app =express()
 const port = process.env.PORT || 5000 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const jwt = require('jsonwebtoken');
 const { query } = require("express");
-require('dotenv').config();
+
 
 
 //middelwere  //
@@ -25,9 +27,9 @@ function verifyJWT(req, res, next) {
   }
   const token = authHeader.split(' ')[1];
   jwt.verify(token, process.env.ACCESS_TOKEN, function (err, decoded) {
-    if (err) {
-      return res.status(403).send({ message: 'Forbidden access' })
-    }
+    // if (err) {
+    //   return res.status(403).send({ message: 'Forbidden access' })
+    // }
     req.decoded = decoded;
     next();
   });
@@ -207,6 +209,22 @@ app.get('/users', verifyJWT,async(req,res)=>{
       const user = await profilesCollection.findOne({email: email})
       res.send(user)
     })
+
+// payment //
+// app.post('/create-payment-intent',  async(req, res) =>{
+//   const service = req.body;
+//   console.log(service);
+//   const price = service.price;
+//   const amount = price*100;
+//   const paymentIntent = await stripe.paymentIntents.create({
+//     amount : amount,
+//     currency: 'usd',
+//     payment_method_types:['card']
+//   });
+//   // console.log(paymentIntent.client_secret);
+//   res.send({clientSecret: paymentIntent.client_secret})
+// });
+
 
 
 }
