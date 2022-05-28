@@ -19,11 +19,12 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
+  // console.log(authHeader);
   if (!authHeader) {
     return res.status(401).send({ message: 'UnAuthorized access' });
   }
   const token = authHeader.split(' ')[1];
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+  jwt.verify(token, process.env.ACCESS_TOKEN, function (err, decoded) {
     if (err) {
       return res.status(403).send({ message: 'Forbidden access' })
     }
@@ -47,7 +48,7 @@ app.get('/tools',verifyJWT, async(req,res)=>{
 res.send(result)
 
 })
-app.post('/addproduct', verifyJWT,async(req,res)=>{
+app.post('/addproduct', async(req,res)=>{
   const product = req.body
   const result = await toolsCollection.insertOne(product)
   res.send(result)
@@ -75,11 +76,10 @@ app.post('/myorders',async(req,res)=>{
   // console.log(booking);
 const result = await bookingsCollection.insertOne(booking)
 res.send(result)
-
 })
 
-app.get('/myorders', verifyJWT,async(req,res)=>{
 
+ app.get('/myorders',verifyJWT , async (req,res)=>{
 const email = req.query.email
 const filter = {email:email}
 // console.log(email);
@@ -87,6 +87,17 @@ const filter = {email:email}
 res.send(result)
 
 })
+
+
+app.get('/myorder/payment/:id',verifyJWT , async(req,res)=>{
+  const id = req.params.id
+  const filter = {_id:ObjectId(id)}
+  // console.log(email);
+    const result = await bookingsCollection.findOne(filter)
+  res.send(result)
+  
+  })
+
 
 app.put('/users/:email', async (req, res) => {
   const email = req.params.email;
@@ -97,11 +108,11 @@ app.put('/users/:email', async (req, res) => {
     $set: user,
   };
   const result = await usersCollection.updateOne(filter, updateDoc, options);
-  const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+  const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN, { expiresIn: '1h' })
   res.send({ result, token });
 })
 
-app.get('/admin/:email', verifyJWT,async(req, res) =>{
+app.get('/admin/:email',async(req, res) =>{
   const email = req.params.email;
   const user = await usersCollection.findOne({email: email});
   const isAdmin = user.role === 'admin';
