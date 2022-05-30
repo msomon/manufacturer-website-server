@@ -145,7 +145,7 @@ app.get('/users', verifyJWT,async(req,res)=>{
   app.post('/addproduct',async(req,res)=>{
     const order = req.body
     const result = await toolsCollection.insertOne(order)
-    console.log(result);
+    // console.log(result);
     res.send(result)
   })
 
