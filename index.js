@@ -1,5 +1,5 @@
-require('dotenv').config();
 const express = require("express");
+require('dotenv').config();
 const cors = require('cors')
 const app =express()
 const port = process.env.PORT || 5000 
@@ -8,7 +8,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const jwt = require('jsonwebtoken');
 const { query } = require("express");
 
-
+// console.log(stripe);
 
 //middelwere  //
 app.use(cors())
@@ -44,6 +44,7 @@ async function run() {
  const usersCollection = client.db('electronicsManufacturer').collection('users')
  const reviewsCollection = client.db('electronicsManufacturer').collection('reviews')
  const profilesCollection = client.db('electronicsManufacturer').collection('profiles')
+ const paymentsCollection = client.db('electronicsManufacturer').collection('payments')
 
 app.get('/tools',verifyJWT, async(req,res)=>{
   const result = await toolsCollection.find({}).toArray()
@@ -91,7 +92,7 @@ res.send(result)
 })
 
 
-app.get('/myorder/payment/:id',verifyJWT , async(req,res)=>{
+app.get('/myorder/payment/:id' , async(req,res)=>{
   const id = req.params.id
   const filter = {_id:ObjectId(id)}
   // console.log(email);
@@ -211,19 +212,36 @@ app.get('/users', verifyJWT,async(req,res)=>{
     })
 
 // payment //
-// app.post('/create-payment-intent',  async(req, res) =>{
-//   const service = req.body;
-//   console.log(service);
-//   const price = service.price;
-//   const amount = price*100;
-//   const paymentIntent = await stripe.paymentIntents.create({
-//     amount : amount,
-//     currency: 'usd',
-//     payment_method_types:['card']
-//   });
-//   // console.log(paymentIntent.client_secret);
-//   res.send({clientSecret: paymentIntent.client_secret})
-// });
+ app.post('/create-payment-intent', async(req,res)=>{
+
+const {totalPrice} = req.body 
+// console.log(totalPrice);
+const amount = totalPrice * 100 ;
+const paymentIntent = await stripe.paymentIntents.create({
+  amount : amount ,
+  currency : 'usd' ,
+  payment_method_types:['card']
+
+})
+res.send({clientSecret:paymentIntent.client_secret})
+
+ })
+
+ app.patch('/payment/:id',async(req,res)=>{
+   const  id = req.params.id 
+   const payment = req.body 
+   const filter ={_id:ObjectId(id)}
+const updatedDoc = {
+  $set:{
+    paid :true ,
+    transactionId :payment.transactionId ,
+
+  }
+}
+const result = await paymentsCollection.insertOne(payment)
+const updateBooking = await bookingsCollection.updateOne(filter,updatedDoc)
+res.send(updatedDoc)
+ })
 
 
 
